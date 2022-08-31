@@ -1,71 +1,51 @@
 import {
-  Button,
-  ListItem,
-  ListItemText,
   Menu,
   MenuItem,
-  Modal,
-  TextField,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import React from "react";
-import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import React,{ useContext } from "react";
+import { DragHandle } from '@mui/icons-material'
 import { useDispatch } from "react-redux";
-import { deleteTodo, fetchTodo } from "../redux/todosSlice";
+import { deleteTodo } from "../redux/todosSlice";
+import {StateContext} from '../Context'
+import { style } from "../styles/index";
 const WorkItem = (props) => {
+  const context = useContext(StateContext)
   const dispatch = useDispatch()
-  const [idTast,setTaskId]  = React.useState('')
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [authorUpdate,setAuthorUpdate] =React.useState()
-  const [workUpdate,setWorkUpdate] =React.useState()
-  const open = Boolean(anchorEl);
+  const open = Boolean(context.anchorEl);
   const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+    context.setAnchorEl(event.currentTarget);
   };
   const handleMenu = (e, _id,title,author) => {
-    setAuthorUpdate(author)
-    setWorkUpdate(title)
-    props.setWorkId(_id)
-    setTaskId(_id);
-    setAnchorEl(null);
+    context.setAuthorUpdate(author)
+    context.setWorkUpdate(title)
+    context.setWorkId(_id)
+    context.setTaskId(_id);
+    context.setAnchorEl(null);
   };
   const handleUpdate =() => {
-    props.setAuthor(authorUpdate)
-    props.setWork(workUpdate)
-    props.setIsUpdate(true)
-    setAnchorEl(null);
+    context.setAuthor(context.authorUpdate)
+    context.setWork(context.workUpdate)
+    context.setIsUpdate(true)
+    context.setAnchorEl(null);
   }
   const handleDelete = (e,_id) =>{
     dispatch(deleteTodo({
-      _id:idTast
+      _id:context.idTask
     }))
-    
-    setAnchorEl(null);
-
+    context.setAnchorEl(null);
   }
-  return props.todo.map((todo) => {
+  return props.todo.map((todo,index) => {
     return (
-      <Box   key={todo._id}>
         <Box
-          key={todo._id}
+         key={index}
           id={todo._id}
-          onMouseDown={() => props.setWorkId(todo._id)}
+          onMouseDown={() => context.setWorkId(todo._id)}
           draggable
           component="li"
-          sx={{
-            
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            cursor: "pointer",
-            borderRadius: 1,
-            padding: "1rem",
-            border: "solid 1px #000",
-            marginTop: "0.5rem",
-          }}
+          sx={style.taskItem}
         >
-          
           <Box >
             <Typography variant="caption">{todo.author}</Typography>
             <Typography variant="h3" fontSize="1rem">
@@ -73,7 +53,7 @@ const WorkItem = (props) => {
             </Typography>
           </Box>
           <div>
-            <DragIndicatorIcon
+            <DragHandle
             onMouseDown={e =>handleMenu(e,todo._id,todo.title,todo.author)}
               id="basic-button"
               aria-controls={open ? "basic-menu" : undefined}
@@ -82,10 +62,10 @@ const WorkItem = (props) => {
               onClick={handleClick}
             >
               Dashboard
-            </DragIndicatorIcon>
+            </DragHandle>
             <Menu
               id="basic-menu"
-              anchorEl={anchorEl}
+              anchorEl={context.anchorEl}
               open={open}
               onClose={handleMenu}
               MenuListProps={{
@@ -99,7 +79,6 @@ const WorkItem = (props) => {
             </Menu>
           </div>
         </Box>
-      </Box>
     );
   });
 };

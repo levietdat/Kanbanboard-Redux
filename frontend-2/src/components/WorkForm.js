@@ -1,47 +1,55 @@
 import { Button, TextField, Typography } from "@mui/material";
 import { Box, Container } from "@mui/system";
-import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import Backdrop from "@mui/material/Backdrop";
+import React, { useContext } from "react";
+import { useDispatch } from "react-redux";
 import { updateTodo } from "../redux/todosSlice";
 import { addTodo } from "../redux/todosSlice";
+import { StateContext } from "../Context";
+
 const WorkForm = (props) => {
+  const context = useContext(StateContext);
   const dispatch = useDispatch();
   const handleChangeAuthor = (e) => {
-    props.setAuthor(e.target.value);
+    context.setAuthor(e.target.value);
   };
   const handleUpdate = () => {
-    dispatch(updateTodo({
-      _id: props.workId,
-      author:props.author,
-      title:props.work,
-    }))
-    props.setWork('')
-    props.setAuthor('')
-    props.setIsUpdate(false)
+    if (context.work === "" || context.author === "") {
+      context.setAlert(true);
+    } else {
+      dispatch(
+        updateTodo({
+          _id: context.workId,
+          author: context.author,
+          title: context.work,
+        })
+      );
+      context.setAlert(false);
+      context.setWork("");
+      context.setAuthor("");
+      context.setIsUpdate(false);
+    }
+  };
 
-  }
   const handleChangeWork = (e) => {
-    props.setWork(e.target.value);
+    context.setWork(e.target.value);
   };
   const handleAddTask = (e) => {
-    if(props.author === "" || props.work === "") {
-     props.setAlert(true)
-     setTimeout(() => {
-      props.setAlert(false)
-     }, 2000);
-    } 
-    else {
-      props.setAlert(false)
+    if (context.author === "" || context.work === "") {
+      context.setAlert(true);
+      setTimeout(() => {
+        context.setAlert(false);
+      }, 2000);
+    } else {
+      context.setAlert(false);
       dispatch(
         addTodo({
-          author: props.author,
-          title: props.work,
+          author: context.author,
+          title: context.work,
           status: "todo",
         })
       );
-      props.setWork("");
-      props.setAuthor("");
+      context.setWork("");
+      context.setAuthor("");
     }
   };
   return (
@@ -56,7 +64,7 @@ const WorkForm = (props) => {
       <Box>
         <TextField
           onChange={handleChangeAuthor}
-          value={props.author}
+          value={context.author}
           id="outlined-basic"
           label="Author Name"
           size="small"
@@ -64,37 +72,38 @@ const WorkForm = (props) => {
         />
         <TextField
           onChange={handleChangeWork}
-          value={props.work}
+          value={context.work}
           id="outlined-basic"
           label="Task Work"
           size="small"
           variant="outlined"
           sx={{ marginLeft: 1, marginRight: 1 }}
         />
-        <Button
+        {!context.isUpdate && (
+          <Button
+            sx={{
+              paddingBottom: 1,
+              paddingTop: 1,
+            }}
+            size="small"
+            variant="outlined"
+            onClick={handleAddTask}
+          >
+            ADD TASK
+          </Button>
+        )}
+        {context.isUpdate &&   <Button
           sx={{
             paddingBottom: 1,
             paddingTop: 1,
-            display: `${props.isUpdate ? "none" : ""}`,
-          }}
-          size="small"
-          variant="outlined"
-          onClick={handleAddTask}
-        >
-          ADD TASK
-        </Button>
-        <Button
-          sx={{
-            paddingBottom: 1,
-            paddingTop: 1,
-            display: `${props.isUpdate ? "" : "none"}`,
           }}
           size="small"
           variant="outlined"
           onClick={handleUpdate}
         >
           UPDATE
-        </Button>
+        </Button> }
+      
       </Box>
     </Container>
   );

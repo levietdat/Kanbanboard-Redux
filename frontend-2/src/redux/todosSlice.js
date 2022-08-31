@@ -17,7 +17,6 @@ const todosSlice = createSlice({
         })
         builder.addCase(fetchTodo.fulfilled,(state,action) =>{
             state.status = 'SUCCESS';
-            console.log(action.payload)
             state.todo = action.payload
         })
         builder.addCase(fetchTodo.rejected,(state,action) =>{
@@ -37,7 +36,6 @@ const todosSlice = createSlice({
             state.status = 'SUCCESS';
             const { _id,author,title, status } = action.payload
             const existingPost = state.todo.find(post => post._id === _id)
-            console.log(existingPost)
             if (!existingPost) {
                 return 
             }
